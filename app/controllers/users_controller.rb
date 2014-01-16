@@ -2,6 +2,12 @@ class UsersController < ApplicationController
   before_action :signed_in_user, only: [:edit, :update, :index, :destroy]
   before_action :correct_user,   only: [:edit, :update]
   before_action :admin_user, only: :destroy
+  before_action :unsigned_user, only: [:new, :create]
+
+  def unsigned_user
+    redirect_to(root_url) if current_user
+  end
+
   def index
     @users = User.paginate(page: params[:page])
   end
@@ -10,9 +16,12 @@ class UsersController < ApplicationController
     redirect_to(root_url) unless current_user.admin?
   end
 
-  def destroy 
-    User.find(params[:id]).destroy
-    flash[:success] = "User destroyed"
+  def destroy
+    wictim = User.find(params[:id])#.destroy
+    if wictim != current_user
+      wictim.destroy
+      flash[:success] = "User destroyed"
+    end
     redirect_to users_url
   end
   
