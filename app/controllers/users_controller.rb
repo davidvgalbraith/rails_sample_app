@@ -1,8 +1,22 @@
 class UsersController < ApplicationController
-  before_action :signed_in_user, only: [:edit, :update, :index, :destroy]
+  before_action :signed_in_user, only: [:edit, :update, :index, :destroy, :following, :followers]
   before_action :correct_user,   only: [:edit, :update]
   before_action :admin_user, only: :destroy
   before_action :unsigned_user, only: [:new, :create]
+
+  def following
+    @title = "Following"
+    @user = User.find(params[:id])
+    @users = @user.followed_users.paginate(page: params[:page])
+    render 'show_follow'
+  end
+
+  def followers
+    @title = "Followers"
+    @user = User.find(params[:id])
+    @users = @user.followers.paginate(page: params[:page])
+    render 'show_follow'
+  end
 
   def unsigned_user
     redirect_to(root_url) if current_user
@@ -17,7 +31,7 @@ class UsersController < ApplicationController
   end
 
   def destroy
-    wictim = User.find(params[:id])#.destroy
+    wictim = User.find(params[:id])
     if wictim != current_user
       wictim.destroy
       flash[:success] = "User destroyed"
